@@ -14,8 +14,11 @@ CREATE TABLE IF NOT EXISTS provider_profiles (
   categoria VARCHAR(100),
   zona VARCHAR(100),
   codigo_postal VARCHAR(10),
+  latitud DECIMAL(10, 8),
+  longitud DECIMAL(11, 8),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  INDEX idx_codigo_postal (codigo_postal)
+  INDEX idx_codigo_postal (codigo_postal),
+  INDEX idx_ubicacion (latitud, longitud)
 );

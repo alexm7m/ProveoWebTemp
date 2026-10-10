@@ -21,6 +21,8 @@ Base de datos: proveo (MySQL 8.0). Script de creacion: backend/db/init.sql
 | categoria | VARCHAR(100) | |
 | zona | VARCHAR(100) | |
 | codigo_postal | VARCHAR(10) | Indice idx_codigo_postal |
+| latitud | DECIMAL(10, 8) | Para geolocalización |
+| longitud | DECIMAL(11, 8) | Para geolocalización |
 | created_at | TIMESTAMP | DEFAULT CURRENT_TIMESTAMP |
 | updated_at | TIMESTAMP | Se actualiza automaticamente |
 
@@ -31,3 +33,4 @@ Base de datos: proveo (MySQL 8.0). Script de creacion: backend/db/init.sql
 ## Indices
 - users.email (UNIQUE): evita correos duplicados.
 - provider_profiles.codigo_postal: acelera la busqueda por zona (HU 05, sprint 4).
+- provider_profiles.ubicacion (latitud, longitud): acelera busquedas por proximidad geográfica.
