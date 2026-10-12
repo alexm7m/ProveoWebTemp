@@ -12,7 +12,15 @@ services:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
-      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Inicializacion de MySQL en volumenes nuevos (orden alfabetico):
+      # 01 tablas del backend (users/provider_profiles)
+      # 02 esquema de las tablas migradas
+      # 03 datos migrados
+      # 04 funcion de busqueda por radio
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./backend/migrations/schema.sql:/docker-entrypoint-initdb.d/02_schema.sql
+      - ./backend/migrations/data.sql:/docker-entrypoint-initdb.d/03_data.sql
+      - ./backend/migrations/buscar_proveedores_cercanos.sql:/docker-entrypoint-initdb.d/04_buscar_proveedores_cercanos.sql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_ROOT_PASSWORD}"]
       interval: 5s
