@@ -49,5 +49,7 @@ El archivo .env no se sube a Git (esta en .gitignore).
   wsl --update
   y reiniciar la PC.
 - Puerto 3000 ocupado: cambiar "3000:3000" por "3001:3000" en docker-compose.yml.
-- init.sql no se aplica: solo corre la primera vez; usar docker compose down -v y volver a levantar.
+- init.sql o las migraciones (backend/db/migrations/*.sql) no se aplican: solo corren la primera vez;
+  usar docker compose down -v y volver a levantar. En bases que ya existian ver
+  docs/esquema-base-de-datos.md (ALTER unico para provider_profiles).
 - Git "Author identity unknown": configurar git config --global user.name y user.email.
