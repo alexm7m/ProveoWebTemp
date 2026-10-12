@@ -1,5 +1,4 @@
 const proveedorRepo = require('../repositories/proveedorRepository');
-
 const obtenerProveedores = async (req, res) => {
   try {
     const { lat, lng, radio, cat } = req.query;
