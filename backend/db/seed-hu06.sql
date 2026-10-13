@@ -22,7 +22,13 @@ INSERT IGNORE INTO proveedor_categorias (proveedor_id, categoria_id)
 SELECT u.id, c.id FROM usuarios u JOIN categorias c
  WHERE u.email = 'demo.zona3@proveo.test' AND c.nombre = 'Jardineria';
 
--- Calificaciones de ejemplo (el usuario 1 conserva 4.80/12 y el 4 queda sin resenas).
-UPDATE perfiles_proveedor SET promedio_calificacion = 4.50, total_resenas = 8 WHERE usuario_id = 5;
-UPDATE perfiles_proveedor SET promedio_calificacion = 3.90, total_resenas = 5 WHERE usuario_id = 6;
-UPDATE perfiles_proveedor SET promedio_calificacion = 4.70, total_resenas = 3 WHERE usuario_id = 7;
+-- Calificaciones de ejemplo; se asignan por email para que funcionen tanto en
+-- una BD limpia (ids 1,2,3) como en una BD ya existente. demo.zona3 se queda
+-- en 0 (sin resenas) a proposit para mostrar el caso "Sin resenas".
+UPDATE perfiles_proveedor p JOIN usuarios u ON u.id = p.usuario_id
+   SET p.promedio_calificacion = 4.50, p.total_resenas = 8
+ WHERE u.email = 'demo.zona1@proveo.test';
+
+UPDATE perfiles_proveedor p JOIN usuarios u ON u.id = p.usuario_id
+   SET p.promedio_calificacion = 3.90, p.total_resenas = 5
+ WHERE u.email = 'demo.zona2@proveo.test';
