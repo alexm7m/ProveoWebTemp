@@ -14,3 +14,15 @@ export const listarZonas = async () => {
   const { data } = await api.get('/proveedores/zonas');
   return data.zonas;
 };
+
+// HU 06: catalogo de categorias para el filtro del listado.
+export const listarCategorias = async () => {
+  const { data } = await api.get('/proveedores/categorias');
+  return data.categorias;
+};
+
+// HU 06: perfil detallado al que redirige cada tarjeta.
+export const obtenerProveedor = async (id) => {
+  const { data } = await api.get(`/proveedores/${id}`);
+  return data.proveedor;
+};

@@ -1,22 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { MapPin, Search } from 'lucide-react';
-import { buscarProveedores, listarZonas } from '../services/proveedorService';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Search } from 'lucide-react';
+import ProveedorCard from './ProveedorCard';
+import { buscarProveedores, listarCategorias, listarZonas } from '../services/proveedorService';
 
-// HU 05: buscador por codigo postal o zona integrado en la pagina principal.
+// HU 05: buscador por codigo postal o zona, integrado en la pagina principal.
+// HU 06: tarjetas de resultados con orden basico por calificacion o
+// categoria de servicio; el clic en una tarjeta abre el perfil detallado.
 export default function BuscadorDirectorio() {
   const [modo, setModo] = useState('codigo_postal'); // 'codigo_postal' | 'zona'
   const [codigoPostal, setCodigoPostal] = useState('');
   const [zonaSeleccionada, setZonaSeleccionada] = useState('');
   const [zonas, setZonas] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [resultados, setResultados] = useState(null); // null = sin busqueda todavia
   const [zonaBuscada, setZonaBuscada] = useState('');
+  const [orden, setOrden] = useState('calificacion'); // 'calificacion' | 'resenas' | 'nombre'
+  const [filtroCategoria, setFiltroCategoria] = useState('todas');
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    listarZonas()
-      .then((datos) => setZonas(datos))
-      .catch(() => setError('No fue posible cargar el listado de zonas.'));
+    Promise.all([listarZonas(), listarCategorias()])
+      .then(([z, c]) => {
+        setZonas(z);
+        setCategorias(c);
+      })
+      .catch(() => setError('No fue posible cargar los catalogos del buscador.'));
   }, []);
 
   const handleBuscar = async (e) => {
@@ -41,6 +50,7 @@ export default function BuscadorDirectorio() {
       );
       setResultados(proveedores);
       setZonaBuscada(modo === 'codigo_postal' ? `codigo postal ${cp}` : zonaSeleccionada);
+      setFiltroCategoria('todas');
     } catch (err) {
       setResultados(null);
       setError(err.response?.data?.error || 'No fue posible realizar la busqueda.');
@@ -49,9 +59,26 @@ export default function BuscadorDirectorio() {
     }
   };
 
+  // Orden y filtro basicos sobre los resultados ya cargados (HU 06).
+  const visibles = useMemo(() => {
+    if (!resultados) return [];
+    let lista = [...resultados];
+    if (filtroCategoria !== 'todas') {
+      lista = lista.filter((p) => p.categorias.includes(filtroCategoria));
+    }
+    if (orden === 'calificacion') {
+      lista.sort((a, b) => b.calificacion - a.calificacion || b.total_resenas - a.total_resenas);
+    } else if (orden === 'resenas') {
+      lista.sort((a, b) => b.total_resenas - a.total_resenas);
+    } else if (orden === 'nombre') {
+      lista.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    }
+    return lista;
+  }, [resultados, filtroCategoria, orden]);
+
   return (
-    <section id="buscador" className="max-w-3xl mx-auto mt-10 px-4">
-      {/* Buscador */}
+    <section id="buscador" className="max-w-4xl mx-auto mt-10 px-4">
+      {/* Buscador (HU 05) */}
       <div className="bg-white p-6 shadow sm:rounded-lg border">
         <div className="flex border-b">
           {[
@@ -117,42 +144,60 @@ export default function BuscadorDirectorio() {
         </div>
       )}
 
-      {/* Resultados */}
+      {/* Resultados en tarjetas (HU 06) */}
       {resultados !== null && !cargando && (
         <div className="mt-6">
           {resultados.length > 0 ? (
             <>
-              <p className="text-sm text-gray-500">
-                {resultados.length} proveedor{resultados.length !== 1 ? 'es' : ''} en {zonaBuscada}
-              </p>
-              <ul className="mt-4 space-y-3">
-                {resultados.map((prov) => (
-                  <li
-                    key={prov.id}
-                    className="bg-white border rounded-lg shadow-sm p-5 flex items-start gap-4"
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p className="text-sm text-gray-500">
+                  {resultados.length} proveedor{resultados.length !== 1 ? 'es' : ''} en {zonaBuscada}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <select
+                    aria-label="Filtrar por categoria"
+                    className="border border-gray-300 rounded-md p-2 text-sm bg-white outline-none focus:border-blue-500"
+                    value={filtroCategoria}
+                    onChange={(e) => setFiltroCategoria(e.target.value)}
                   >
-                    {prov.foto_perfil_url ? (
-                      <img
-                        src={prov.foto_perfil_url}
-                        alt={prov.nombre}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold">
-                        {prov.nombre.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-gray-900">{prov.nombre}</h3>
-                      <p className="text-sm text-gray-500 flex items-center gap-1">
-                        <MapPin size={14} />
-                        {prov.colonia ? `${prov.colonia}, ` : ''}
-                        CP {prov.codigo_postal || 's/o'}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                    <option value="todas">Todas las categorias</option>
+                    {categorias.map((cat) => (
+                      <option key={cat.id} value={cat.nombre}>
+                        {cat.nombre}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    aria-label="Ordenar resultados"
+                    className="border border-gray-300 rounded-md p-2 text-sm bg-white outline-none focus:border-blue-500"
+                    value={orden}
+                    onChange={(e) => setOrden(e.target.value)}
+                  >
+                    <option value="calificacion">Mejor calificacion</option>
+                    <option value="resenas">Mas resenas</option>
+                    <option value="nombre">Nombre (A-Z)</option>
+                  </select>
+                </div>
+              </div>
+
+              {visibles.length > 0 ? (
+                <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {visibles.map((prov) => (
+                    <li key={prov.id}>
+                      <ProveedorCard proveedor={prov} />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-md p-6 text-center">
+                  <p className="font-medium text-yellow-800">
+                    No hay proveedores de {filtroCategoria} en {zonaBuscada}.
+                  </p>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Prueba con otra categoria u otra zona.
+                  </p>
+                </div>
+              )}
             </>
           ) : (
             <div className="bg-blue-50 border border-blue-200 rounded-md p-6 text-center">
