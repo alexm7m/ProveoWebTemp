@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, MapPin, Phone } from 'lucide-react';
 import Estrellas from '../components/Estrellas';
-import { obtenerProveedor } from '../services/proveedorService';
+import { obtenerProveedor, obtenerResenas } from '../services/proveedorService';
 
 // Perfil detallado del proveedor: destino del clic en una tarjeta (HU 06).
 export default function PerfilProveedor() {
   const { id } = useParams();
   const [proveedor, setProveedor] = useState(null);
+  const [resenas, setResenas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
 
@@ -15,6 +16,7 @@ export default function PerfilProveedor() {
     let activo = true;
     setCargando(true);
     setError('');
+    setResenas([]);
     obtenerProveedor(id)
       .then((datos) => activo && setProveedor(datos))
       .catch((err) =>
@@ -26,6 +28,11 @@ export default function PerfilProveedor() {
         )
       )
       .finally(() => activo && setCargando(false));
+
+    // HU 07: las resenas las sirve el endpoint /v1 de Fabian; si su PR aun no
+    // esta en develop, obtenerResenas devuelve [] y la pagina no se rompe.
+    obtenerResenas(id).then((lista) => activo && setResenas(lista));
+
     return () => {
       activo = false;
     };
@@ -123,6 +130,35 @@ export default function PerfilProveedor() {
           <div className="mt-6">
             <h2 className="font-semibold text-gray-900">Formacion</h2>
             <p className="mt-2 text-sm text-gray-600">{proveedor.formacion}</p>
+          </div>
+        )}
+
+        {/* HU 07: resenas servidas por el endpoint /v1 de Fabian (si existe). */}
+        {resenas.length > 0 && (
+          <div className="mt-6">
+            <h2 className="font-semibold text-gray-900">
+              Reseñas ({resenas.length})
+            </h2>
+            <ul className="mt-3 space-y-3">
+              {resenas.map((r) => (
+                <li key={r.id} className="border rounded-md p-3 bg-gray-50">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-800">
+                      {r.autor || 'Cliente'}
+                    </span>
+                    <Estrellas calificacion={r.calificacion} size={14} mostrarTexto={false} />
+                  </div>
+                  {r.comentario && (
+                    <p className="mt-1 text-sm text-gray-600">{r.comentario}</p>
+                  )}
+                  {r.fecha && (
+                    <p className="mt-1 text-xs text-gray-400">
+                      {new Date(r.fecha).toLocaleDateString('es-MX')}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>

@@ -2,7 +2,9 @@ import React from 'react';
 import { Star } from 'lucide-react';
 
 // Calificacion promedio en estrellas (1 a 5) con su total de resenas.
-export default function Estrellas({ calificacion, totalResenas, size = 16 }) {
+// Con mostrarTexto={false} solo pinta las estrellas (util para una resena
+// individual, donde el "de 5 (N resenas)" no tiene sentido).
+export default function Estrellas({ calificacion, totalResenas, size = 16, mostrarTexto = true }) {
   const promedio = Number(calificacion) || 0;
   const llenas = Math.round(promedio);
 
@@ -19,11 +21,13 @@ export default function Estrellas({ calificacion, totalResenas, size = 16 }) {
           />
         ))}
       </span>
-      <span className="text-sm text-gray-600">
-        {promedio > 0
-          ? `${promedio.toFixed(1)} de 5 (${totalResenas} reseña${totalResenas !== 1 ? 's' : ''})`
-          : 'Sin reseñas'}
-      </span>
+      {mostrarTexto && (
+        <span className="text-sm text-gray-600">
+          {promedio > 0
+            ? `${promedio.toFixed(1)} de 5 (${totalResenas} reseña${totalResenas !== 1 ? 's' : ''})`
+            : 'Sin reseñas'}
+        </span>
+      )}
     </span>
   );
 }
