@@ -1,0 +1,58 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: proveo_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/000_init.sql
+      - ./backend/db/migrations/001_esquema.sql:/docker-entrypoint-initdb.d/001_esquema.sql
+      - ./backend/db/migrations/001_zonas_servicios.sql:/docker-entrypoint-initdb.d/001_zonas_servicios.sql
+      - ./backend/db/migrations/002_datos.sql:/docker-entrypoint-initdb.d/002_datos.sql
+      - ./backend/db/migrations/003_procedimiento.sql:/docker-entrypoint-initdb.d/003_procedimiento.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build: ./backend
+    container_name: proveo_backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build: ./frontend
+    container_name: proveo_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_TARGET: http://backend:3000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  db_data:
