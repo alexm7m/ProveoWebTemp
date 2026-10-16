@@ -43,4 +43,34 @@ const listarZonas = async (req, res) => {
   }
 };
 
-module.exports = { buscarProveedores, listarZonas };
+// Catalogo de categorias para el filtro del listado (HU 06).
+const listarCategorias = async (req, res) => {
+  try {
+    const categorias = await proveedorRepo.listarCategorias();
+    return res.json({ categorias });
+  } catch (err) {
+    console.error('Error al listar categorias:', err);
+    return res.status(500).json({ error: 'No fue posible cargar las categorias.' });
+  }
+};
+
+// GET /api/proveedores/:id - perfil detallado (destino de las tarjetas, HU 06).
+const obtenerDetalle = async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ error: 'Identificador de proveedor invalido.' });
+  }
+
+  try {
+    const proveedor = await proveedorRepo.obtenerPorId(id);
+    if (!proveedor) {
+      return res.status(404).json({ error: 'Proveedor no encontrado.' });
+    }
+    return res.json({ proveedor });
+  } catch (err) {
+    console.error('Error al obtener proveedor:', err);
+    return res.status(500).json({ error: 'No fue posible cargar el perfil del proveedor.' });
+  }
+};
+
+module.exports = { buscarProveedores, listarZonas, listarCategorias, obtenerDetalle };

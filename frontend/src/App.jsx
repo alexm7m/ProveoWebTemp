@@ -4,6 +4,7 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Inicio from './pages/Inicio';
+import PerfilProveedor from './pages/PerfilProveedor';
 import { obtenerSesion } from './services/authService';
 
 // Ruta privada: sin sesion se redirige al login
@@ -20,6 +21,7 @@ function App() {
           <Route path="/" element={<Inicio />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/proveedores/:id" element={<PerfilProveedor />} />
           <Route
             path="/cuenta"
             element={
