@@ -20,5 +20,7 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+app.use('/api/proveedores', require('./routes/proveedores.routes'));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Backend en puerto ${PORT}`));
