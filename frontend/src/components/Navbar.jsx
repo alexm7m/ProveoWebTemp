@@ -20,6 +20,9 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-4">
+          <Link to="/#buscador" className="text-sm font-medium text-gray-700 hover:text-blue-600">
+            Buscar
+          </Link>
           {sesion ? (
             <>
               <Link to="/cuenta" className="text-sm text-gray-700 hover:text-blue-600">
