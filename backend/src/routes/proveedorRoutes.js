@@ -4,6 +4,10 @@ const proveedorController = require('../controllers/proveedorController');
 const autenticar = require('../middlewares/auth');
 const permitirRoles = require('../middlewares/roles');
 const { uploadProfileImages } = require('../middlewares/profileImageUpload');
+const verificarToken = require('../middlewares/authMiddleware');
+
+router.get('/me', verificarToken, proveedorController.getMyProfile);
+router.put('/me', verificarToken, proveedorController.saveOrUpdateProfile);
 
 router.get('/perfil', autenticar, permitirRoles('proveedor'), proveedorController.obtenerPerfil);
 router.put('/perfil', autenticar, permitirRoles('proveedor'), proveedorController.actualizarPerfil);
