@@ -1,9 +1,14 @@
-const express = require('express');
-const authController = require('../controllers/authController');
+const router = require('express').Router();
+const { register, login, perfil, registrar, iniciarSesion } = require('../controllers/authController');
+const verificarToken = require('../middlewares/auth');
 
-const router = express.Router();
+router.post('/registro', registrar);
+//router.post('/login', iniciarSesion);
 
-router.post('/registro', authController.registrar);
-router.post('/login', authController.iniciarSesion);
+router.post('/register', register);
+router.post('/login', login);
+
+// Ruta protegida: valida que el middleware de autenticacion funcione
+router.get('/perfil', verificarToken, perfil);
 
 module.exports = router;

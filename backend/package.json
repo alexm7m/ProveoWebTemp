@@ -2,8 +2,10 @@
   "name": "proveo-backend",
   "version": "1.0.0",
   "main": "index.js",
+  "//main": "src/index.js",
   "scripts": {
     "start": "node index.js",
+    "//start": "node src/index.js",
     "dev": "nodemon index.js",
     "test": "node --test"
   },
@@ -14,6 +16,8 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.4.0",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "mysql2": "^3.11.0"
   }
 }
+
