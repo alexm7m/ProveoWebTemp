@@ -5,6 +5,9 @@ const pool = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const proveedorRoutes = require('./routes/proveedorRoutes'); // <-- Importamos las rutas de proveedor (HU 03)
 
+// 1. Importamos tus rutas de proveedores
+const proveedorRoutes = require('./routes/proveedorRoutes');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -18,6 +21,9 @@ app.use('/api/proveedores', proveedorRoutes);
 // COMENTADO DE RUTAS DE PROVEEDOR (HU 03)
 // Rutas de perfil de proveedor (HU 03)
 // app.use('/api', proveedorRoutes); // Quedarán disponibles como /api/perfil
+// COMENTADO DE RUTAS DE PROVEEDOR (HU 06)
+// 2. Conectamos la ruta. Toda petición a /api/v1/proveedores se irá a tu archivo de rutas
+//app.use('/api/v1/proveedores', proveedorRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {

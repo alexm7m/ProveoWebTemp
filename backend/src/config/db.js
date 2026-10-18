@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mysql = require('mysql2/promise');
 
 const pool = mysql.createPool({
@@ -9,5 +10,10 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
 });
+
+// Prueba de conexión al iniciar
+pool.getConnection()
+  .then(() => console.log('✅ Conexión exitosa a MySQL local'))
+  .catch(err => console.error('❌ Error conectando a MySQL:', err.message));
 
 module.exports = pool;

@@ -59,21 +59,31 @@ const proveedorController = {
     }
 };
 
-const obtenerProveedores = async (req, res) => {
+// HU 06: Búsqueda geoespacial de proveedores
+const buscarProveedores = async (req, res) => {
   try {
     const { lat, lng, radio, cat } = req.query;
     if (!lat || !lng || !cat) {
-      return res.status(400).json({ error: 'Faltan parámetros de búsqueda' });
+      return res.status(400).json({ 
+        exito: false, 
+        error: 'Faltan parámetros de búsqueda (lat, lng, cat)' 
+      });
     }
 
     const proveedores = await proveedorRepo.buscarProveedores(
-      parseFloat(lat), parseFloat(lng), parseInt(radio) || 5000, cat
+      parseFloat(lat),
+      parseFloat(lng),
+      parseInt(radio) || 5000,
+      cat
     );
 
     res.status(200).json({ exito: true, datos: proveedores });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    console.error('Error en buscarProveedores:', error);
+    res.status(500).json({ 
+      exito: false, 
+      error: 'Error interno del servidor' 
+    });
   }
 };
 
@@ -195,33 +205,33 @@ const subirImagenesPerfil = (req, res) => {
 
 
 // HU 05: GET /api/proveedores/buscar?codigo_postal=XXXXX  o  ?zona=Colonia
-const buscarProveedores = async (req, res) => {
-  const codigo_postal =
-  typeof req.query.codigo_postal === 'string' ? req.query.codigo_postal.trim() : '';
-  const zona = typeof req.query.zona === 'string' ? req.query.zona.trim() : '';
+// const buscarProveedores = async (req, res) => {
+//   const codigo_postal =
+//   typeof req.query.codigo_postal === 'string' ? req.query.codigo_postal.trim() : '';
+//   const zona = typeof req.query.zona === 'string' ? req.query.zona.trim() : '';
   
-  if (!codigo_postal && !zona) {
-    return res.status(400).json({ error: 'Indica un codigo postal o selecciona una zona.' });
-  }
-  if (codigo_postal && !CODIGO_POSTAL_REGEX.test(codigo_postal)) {
-    return res.status(400).json({ error: 'El codigo postal debe tener 5 digitos.' });
-  }
-  if (zona && zona.length > 150) {
-    return res.status(400).json({ error: 'La zona indicada no es valida.' });
-  }
+//   if (!codigo_postal && !zona) {
+//     return res.status(400).json({ error: 'Indica un codigo postal o selecciona una zona.' });
+//   }
+//   if (codigo_postal && !CODIGO_POSTAL_REGEX.test(codigo_postal)) {
+//     return res.status(400).json({ error: 'El codigo postal debe tener 5 digitos.' });
+//   }
+//   if (zona && zona.length > 150) {
+//     return res.status(400).json({ error: 'La zona indicada no es valida.' });
+//   }
 
-  try {
-    // Si llegan los dos, el codigo postal tiene prioridad.
-    const proveedores = await proveedorRepo.buscarPorZona({
-      codigo_postal: codigo_postal || null,
-      zona: codigo_postal ? null : zona,
-    });
-    return res.json({ total: proveedores.length, proveedores });
-  } catch (err) {
-    console.error('Error al buscar proveedores:', err);
-    return res.status(500).json({ error: 'No fue posible realizar la busqueda.' });
-  }
-};
+//   try {
+//     // Si llegan los dos, el codigo postal tiene prioridad.
+//     const proveedores = await proveedorRepo.buscarPorZona({
+//       codigo_postal: codigo_postal || null,
+//       zona: codigo_postal ? null : zona,
+//     });
+//     return res.json({ total: proveedores.length, proveedores });
+//   } catch (err) {
+//     console.error('Error al buscar proveedores:', err);
+//     return res.status(500).json({ error: 'No fue posible realizar la busqueda.' });
+//   }
+// };
 
 // Catalogo de zonas para el selector del buscador (HU 05).
 const listarZonas = async (req, res) => {
@@ -264,7 +274,46 @@ const obtenerDetalle = async (req, res) => {
   }
 };
 
-module.exports = { buscarProveedores, listarZonas, listarCategorias, obtenerDetalle, obtenerProveedores, obtenerPerfil, actualizarPerfil, subirImagenesPerfil };
 
 //module.exports = proveedorController;
 const verifyToken = require('../middlewares/authMiddleware');
+// HU 07: Perfil público completo y reseñas asociadas
+const obtenerDetallePerfil = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id || isNaN(id)) {
+      return res.status(400).json({
+        exito: false,
+        mensaje: 'El ID del proveedor debe ser un número válido'
+      });
+    }
+    
+    // Usamos proveedorRepo, que coincide con la importación arriba
+    const perfil = await proveedorRepo.obtenerPerfilProveedor(Number(id));
+    
+    if (!perfil) {
+      return res.status(404).json({
+        exito: false,
+        mensaje: 'Proveedor no encontrado'
+      });
+    }
+    
+    res.status(200).json({
+      exito: true,
+      datos: perfil
+    });
+  } catch (error) {
+    console.error('Error al obtener perfil:', error);
+    res.status(500).json({
+      exito: false,
+      mensaje: 'Error interno del servidor al obtener el perfil'
+    });
+  }
+};
+
+module.exports = { buscarProveedores, listarZonas, listarCategorias, obtenerDetalle, obtenerProveedores, obtenerPerfil, actualizarPerfil, subirImagenesPerfil, obtenerDetallePerfil };
+// module.exports = {
+//   buscarProveedores,
+//   obtenerDetallePerfil
+// };

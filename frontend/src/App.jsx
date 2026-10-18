@@ -7,6 +7,7 @@ import Inicio from './pages/Inicio';
 import PerfilProveedor from './pages/PerfilProveedor';
 import ProfileEdit from './pages/ProfileEdit';
 import { obtenerSesion } from './services/authService';
+import VistaBusqueda from './pages/Buscarproveedores';
 
 // Ruta privada: sin sesion se redirige al login
 function RutaPrivada({ children }) {
@@ -43,5 +44,13 @@ function App() {
     </Router>
   );
 }
+
+// function App() {
+//   return (
+//     <div>
+//       <VistaBusqueda />
+//     </div>
+//   );
+// }
 
 export default App;

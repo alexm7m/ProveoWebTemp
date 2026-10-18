@@ -31,5 +31,7 @@ router.get('/categorias', proveedorController.listarCategorias);
 
 // HU 06: perfil detallado (siempre al final: no tapa las rutas literales)
 router.get('/:id', proveedorController.obtenerDetalle);
+// HU 07: Perfil público completo y reseñas asociadas
+// router.get('/:id', proveedorController.obtenerDetallePerfil);
 
 module.exports = router;
