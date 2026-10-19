@@ -312,6 +312,13 @@ const obtenerDetallePerfil = async (req, res) => {
   }
 };
 
+const obtenerProveedores = async (req, res) => {
+  res.status(501).json({
+    exito: false,
+    mensaje: 'Funcionalidad no implementada'
+  });
+};
+
 module.exports = { buscarProveedores, listarZonas, listarCategorias, obtenerDetalle, obtenerProveedores, obtenerPerfil, actualizarPerfil, subirImagenesPerfil, obtenerDetallePerfil };
 // module.exports = {
 //   buscarProveedores,

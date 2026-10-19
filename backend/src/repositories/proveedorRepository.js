@@ -77,10 +77,6 @@ const guardarPerfil = async (usuarioId, perfil) => {
   });
 };
 
-
-
-const pool = require('../config/db');
-
 // HU 05/06: busca proveedores por codigo postal o por zona (colonia).
 // Devuelve los datos de las tarjetas del directorio (HU 06): nombre,
 // categorias, zona, calificacion promedio y total de resenas.
